@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#080808" />
+    <meta
+      name="description"
+      content="Maison Bạn Tôi - một chiến dịch thời trang hoàn toàn không được người mẫu cho phép."
+    />
+    <title>Maison Bạn Tôi — The Green Gentleman</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="scroll-meter" aria-hidden="true"><span id="scrollMeter"></span></div>
+
+    <section class="campaign-hero" id="campaignHero" aria-labelledby="campaignTitle">
+      <div class="hero-media" aria-hidden="true">
+        <img class="hero-image is-active" id="heroImageA" alt="" />
+        <img class="hero-image" id="heroImageB" alt="" />
+      </div>
+      <div class="hero-scrim" aria-hidden="true"></div>
+
+      <header class="fashion-nav">
+        <a class="fashion-brand" href="/" aria-label="Maison Bạn Tôi">
+          <span>MAISON</span>
+          <strong>BẠN TÔI</strong>
+        </a>
+
+        <p class="nav-edition">FRIEND 001&nbsp;&nbsp;/&nbsp;&nbsp;SAIGON 2026</p>
+
+        <div class="nav-actions">
+          <button class="icon-button" id="refreshButton" title="Quét lại thư mục ảnh" type="button">
+            <span aria-hidden="true">↻</span>
+            <span class="sr-only">Quét lại thư mục ảnh</span>
+          </button>
+          <button class="icon-button" id="shuffleButton" title="Xáo trộn lookbook" type="button">
+            <span aria-hidden="true">⤨</span>
+            <span class="sr-only">Xáo trộn lookbook</span>
+          </button>
+          <button class="icon-button" id="focusButton" title="Mở Runway View" type="button">
+            <span aria-hidden="true">◉</span>
+            <span class="sr-only">Mở Runway View</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="hero-copy">
+        <p class="hero-kicker">SPRING / SUMMER 2026 — FRIENDSHIP COUTURE</p>
+        <h1 id="campaignTitle">
+          <span>THE GREEN</span>
+          <em>GENTLEMAN</em>
+        </h1>
+        <p class="hero-deck">Một gương mặt. Mười lăm biến cố. Không stylist nào chịu trách nhiệm.</p>
+        <div class="hero-actions">
+          <button class="campaign-button campaign-button-primary" id="heroPackButton" type="button">
+            RUNWAY VIEW <span aria-hidden="true">↗</span>
+          </button>
+          <a class="campaign-button campaign-button-ghost" href="#lookbook">
+            LOOKBOOK <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
+
+      <aside class="hero-issue" aria-live="polite">
+        <span id="heroCounter">01 / 01</span>
+        <strong id="heroName">THE FIRST INCIDENT</strong>
+        <small>THE UNAUTHORIZED CAMPAIGN</small>
+      </aside>
+
+      <div class="hero-controls">
+        <button id="heroPrev" title="Ảnh campaign trước" type="button">
+          <span aria-hidden="true">←</span>
+          <span class="sr-only">Ảnh campaign trước</span>
+        </button>
+        <span class="hero-progress" aria-hidden="true"><i id="heroProgress"></i></span>
+        <button id="heroNext" title="Ảnh campaign sau" type="button">
+          <span aria-hidden="true">→</span>
+          <span class="sr-only">Ảnh campaign sau</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="fashion-marquee" aria-label="Thông điệp campaign">
+      <div class="marquee-track">
+        <span>GREEN IS THE NEW BLACK</span><i>✦</i>
+        <span>NO STYLIST, NO PROBLEM</span><i>✦</i>
+        <span>100% FRIEND-MADE DRAMA</span><i>✦</i>
+        <span>LIMITED EDITION FACE</span><i>✦</i>
+        <span>GREEN IS THE NEW BLACK</span><i>✦</i>
+        <span>NO STYLIST, NO PROBLEM</span><i>✦</i>
+        <span>100% FRIEND-MADE DRAMA</span><i>✦</i>
+        <span>LIMITED EDITION FACE</span><i>✦</i>
+      </div>
+    </div>
+
+    <main>
+      <section class="manifesto reveal" data-reveal>
+        <p class="section-index">01 / MANIFESTO</p>
+        <h2>
+          Đẹp trai là một lựa chọn.
+          <em>Xanh lá là định mệnh.</em>
+        </h2>
+        <div class="manifesto-copy">
+          <p>
+            Được đào tạo bài bản bởi camera trước, ánh đèn văn phòng và những người bạn có quá nhiều thời gian rảnh.
+          </p>
+          <p class="micro-copy">MAISON BẠN TÔI / EST. SAU MỘT BUỔI NGỒI CHƠI</p>
+        </div>
+      </section>
+
+      <section class="runway-numbers reveal" data-reveal aria-label="Thống kê campaign">
+        <div>
+          <strong id="totalCount">0</strong>
+          <span>BỘ ẢNH<br />SỐNG SÓT</span>
+        </div>
+        <div>
+          <strong>0</strong>
+          <span>LẦN MẤT<br />THẦN THÁI</span>
+        </div>
+        <div>
+          <strong>100%</strong>
+          <span>MÀU XANH<br />CHÍNH HÃNG</span>
+        </div>
+      </section>
+
+      <section class="editorial-feature reveal" data-reveal>
+        <img id="featureImage" alt="Ảnh campaign nổi bật" loading="lazy" decoding="async" />
+        <div class="feature-overlay" aria-hidden="true"></div>
+        <div class="feature-label">
+          <span>CAMPAIGN 02</span>
+          <span>AFTER HOURS / BEFORE SALARY</span>
+        </div>
+        <blockquote>
+          “Tôi không đi casting.<br />Casting tự tìm đến tôi.”
+          <small>— Một tuyên ngôn hoàn toàn chưa được xác nhận</small>
+        </blockquote>
+      </section>
+
+      <section class="lookbook" id="lookbook" aria-labelledby="lookbookTitle">
+        <header class="lookbook-heading reveal" data-reveal>
+          <p class="section-index">02 / THE INCIDENT ARCHIVE</p>
+          <h2 id="lookbookTitle">LOOKBOOK</h2>
+          <p>
+            Những khoảnh khắc thời trang quan trọng đến mức không ai yêu cầu, nhưng tất cả đều phải xem.
+          </p>
+        </header>
+
+        <div class="filter-rail" aria-label="Bộ lọc lookbook">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Tìm một biến cố" autocomplete="off" />
+          </label>
+
+          <label class="select-box">
+            <span>ARCHIVE</span>
+            <select id="folderSelect"></select>
+          </label>
+
+          <label class="select-box">
+            <span>ORDER</span>
+            <select id="sortSelect">
+              <option value="newest">Mới nhất</option>
+              <option value="oldest">Cũ nhất</option>
+              <option value="name">Tên A-Z</option>
+              <option value="size">File lớn</option>
+            </select>
+          </label>
+
+          <div class="filter-stats" aria-live="polite">
+            <span><strong id="visibleCount">0</strong> LOOKS</span>
+            <span><strong id="folderCount">0</strong> SERIES</span>
+          </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <span>NO LOOKS FOUND</span>
+          <h3>Runway đang nghỉ giữa hiệp.</h3>
+          <p>Thêm ảnh mới vào thư mục <code>memes</code> rồi quét lại.</p>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid" aria-label="Danh sách ảnh lookbook"></div>
+      </section>
+    </main>
+
+    <footer class="fashion-footer">
+      <strong>MAISON BẠN TÔI</strong>
+      <p>Không người bạn nào được stylist chuyên nghiệp trong quá trình thực hiện campaign này.</p>
+      <span>LOCAL ARCHIVE / 2026</span>
+    </footer>
+
+    <dialog class="viewer" id="viewer" aria-label="Runway View 3D">
+      <div class="viewer-backdrops" aria-hidden="true">
+        <div class="viewer-backdrop is-active"></div>
+        <div class="viewer-backdrop"></div>
+        <div class="viewer-vignette"></div>
+        <div class="viewer-floor"></div>
+      </div>
+
+      <section class="viewer-shell">
+        <header class="viewer-topbar">
+          <div class="viewer-brand">
+            <span class="viewer-brand-mark">MBT</span>
+            <span>
+              <small>RUNWAY VIEW</small>
+              <strong id="viewerCounter">01 / 01</strong>
+            </span>
+          </div>
+
+          <div class="viewer-actions">
+            <a class="download-button" id="downloadButton" download>
+              <span aria-hidden="true">↓</span>
+              <span>Tải ảnh</span>
+            </a>
+            <button class="viewer-close icon-button" id="closeViewer" title="Đóng" type="button">
+              <span aria-hidden="true">×</span>
+              <span class="sr-only">Đóng Runway View</span>
+            </button>
+          </div>
+        </header>
+
+        <div
+          class="pack-stage"
+          id="packStage"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Bộ ảnh runway 3D"
+          tabindex="0"
+        >
+          <div class="pack-light pack-light-left" aria-hidden="true"></div>
+          <div class="pack-light pack-light-right" aria-hidden="true"></div>
+
+          <button class="viewer-nav viewer-prev" id="prevButton" title="Ảnh trước" type="button">
+            <span aria-hidden="true">‹</span>
+            <span class="sr-only">Ảnh trước</span>
+          </button>
+
+          <div class="pack-carousel" id="packCarousel"></div>
+
+          <button class="viewer-nav viewer-next" id="nextButton" title="Ảnh sau" type="button">
+            <span aria-hidden="true">›</span>
+            <span class="sr-only">Ảnh sau</span>
+          </button>
+        </div>
+
+        <footer class="viewer-footer">
+          <div class="viewer-copy">
+            <strong id="viewerTitle"></strong>
+            <small id="viewerMeta"></small>
+          </div>
+          <div class="viewer-progress" id="viewerProgress" aria-label="Chọn ảnh"></div>
+        </footer>
+      </section>
+    </dialog>
+
+    <template id="cardTemplate">
+      <article class="meme-card reveal" data-reveal>
+        <button class="card-button" type="button">
+          <span class="image-wrap">
+            <img loading="lazy" decoding="async" alt="" />
+            <span class="look-index"></span>
+            <span class="look-badge">FRIEND COUTURE</span>
+          </span>
+          <span class="card-meta">
+            <strong></strong>
+            <small></small>
+          </span>
+        </button>
+      </article>
+    </template>
+
+    <template id="packCardTemplate">
+      <button class="pack-card" type="button">
+        <span class="pack-card-frame">
+          <span class="pack-card-image">
+            <img decoding="async" alt="" draggable="false" />
+          </span>
+          <span class="pack-card-sheen" aria-hidden="true"></span>
+        </span>
+      </button>
+    </template>
+
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
