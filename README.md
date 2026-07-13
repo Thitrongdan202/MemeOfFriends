@@ -1,4 +1,4 @@
-# Maison Bạn Tôi
+# Danh Ngu 
 
 Website lookbook meme chạy local bằng Python, thiết kế như một campaign thời trang cao cấp nhưng nội dung dành riêng để trêu người bạn trong ảnh. Toàn bộ giao diện tự đọc ảnh từ thư mục `memes/`.
 
