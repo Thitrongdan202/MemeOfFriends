@@ -51,6 +51,7 @@ const elements = {
   folder: document.querySelector("#folderSelect"),
   sort: document.querySelector("#sortSelect"),
   total: document.querySelector("#totalCount"),
+  videoCount: document.querySelector("#videoCount"),
   visibleCount: document.querySelector("#visibleCount"),
   folderCount: document.querySelector("#folderCount"),
   refresh: document.querySelector("#refreshButton"),
@@ -69,6 +70,7 @@ const elements = {
   viewer: document.querySelector("#viewer"),
   viewerCounter: document.querySelector("#viewerCounter"),
   viewerTitle: document.querySelector("#viewerTitle"),
+  viewerStory: document.querySelector("#viewerStory"),
   viewerMeta: document.querySelector("#viewerMeta"),
   download: document.querySelector("#downloadButton"),
   closeViewer: document.querySelector("#closeViewer"),
@@ -98,6 +100,8 @@ const formatDate = (isoDate) => {
 };
 
 const paddedIndex = (value, length) => String(value).padStart(Math.max(2, String(length).length), "0");
+const isVideo = (meme) => meme?.mediaType === "video";
+const mediaLabel = (meme) => (isVideo(meme) ? "VIDEO" : "ẢNH");
 
 const revealObserver = "IntersectionObserver" in window
   ? new IntersectionObserver(
@@ -111,6 +115,25 @@ const revealObserver = "IntersectionObserver" in window
       { threshold: 0.08, rootMargin: "0px 0px -8%" },
     )
   : null;
+
+const previewVideoObserver = "IntersectionObserver" in window
+  ? new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          loadPreviewVideo(entry.target);
+          previewVideoObserver.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "520px 0px", threshold: 0.01 },
+    )
+  : null;
+
+function loadPreviewVideo(video) {
+  if (video.src || !video.dataset.src) return;
+  video.src = video.dataset.src;
+  video.load();
+}
 
 function observeReveals(root = document) {
   const items = root.querySelectorAll(".reveal:not([data-observed])");
@@ -163,7 +186,7 @@ function applyFilters() {
 
   let visible = state.memes.filter((meme) => {
     const matchesFolder = folder === "all" || meme.folder === folder;
-    const haystack = `${meme.name} ${meme.filename} ${meme.folder} ${meme.relativePath}`.toLowerCase();
+    const haystack = `${meme.name} ${meme.filename} ${meme.folder} ${meme.relativePath} ${meme.storyTitle || ""} ${meme.story || ""}`.toLowerCase();
     return matchesFolder && haystack.includes(query);
   });
 
@@ -171,6 +194,7 @@ function applyFilters() {
   state.visible = visible;
   state.activeIndex = Math.min(state.activeIndex, Math.max(visible.length - 1, 0));
   elements.total.textContent = String(state.memes.length);
+  elements.videoCount.textContent = String(state.memes.filter(isVideo).length);
   elements.visibleCount.textContent = String(visible.length);
   renderGallery();
   syncCampaign();
@@ -191,9 +215,11 @@ function sortMemes(memes, mode) {
 }
 
 function syncCampaign() {
-  state.campaignMemes = state.visible.length ? state.visible : state.memes;
+  const visibleImages = state.visible.filter((meme) => !isVideo(meme));
+  const allImages = state.memes.filter((meme) => !isVideo(meme));
+  state.campaignMemes = visibleImages.length ? visibleImages : allImages;
   state.heroIndex = 0;
-  showHero(0, { immediate: !state.heroInitialized });
+  if (state.campaignMemes.length) showHero(0, { immediate: !state.heroInitialized });
 }
 
 function showHero(index, { immediate = false } = {}) {
@@ -253,13 +279,17 @@ function preloadCampaignNeighbors() {
 }
 
 function setFeatureImage() {
-  if (!state.memes.length) return;
-  const feature = state.memes[Math.min(3, state.memes.length - 1)];
+  const images = state.memes.filter((meme) => !isVideo(meme));
+  if (!images.length) return;
+  const feature = images[Math.min(3, images.length - 1)];
   elements.featureImage.src = feature.url;
   elements.featureImage.alt = feature.name || feature.filename;
 }
 
 function renderGallery() {
+  if (previewVideoObserver) {
+    elements.gallery.querySelectorAll("video").forEach((video) => previewVideoObserver.unobserve(video));
+  }
   elements.gallery.innerHTML = "";
   elements.empty.classList.toggle("is-visible", state.visible.length === 0);
 
@@ -268,18 +298,49 @@ function renderGallery() {
     const card = elements.template.content.firstElementChild.cloneNode(true);
     const button = card.querySelector(".card-button");
     const image = card.querySelector("img");
+    const video = card.querySelector("video");
     const title = card.querySelector(".card-meta strong");
     const meta = card.querySelector(".card-meta small");
+    const storyTitle = card.querySelector(".card-story-title");
+    const storyCopy = card.querySelector(".card-story-copy");
     const lookIndex = card.querySelector(".look-index");
+    const lookBadge = card.querySelector(".look-badge");
     const caption = runwayCaptions[index % runwayCaptions.length];
 
     card.classList.add(`look-${index % 6}`);
-    image.src = meme.url;
-    image.alt = meme.name || meme.filename;
+    if (isVideo(meme)) {
+      card.classList.add("is-video");
+      image.remove();
+      video.dataset.src = meme.url;
+      video.setAttribute("aria-label", meme.name || meme.filename);
+      video.addEventListener("error", () => card.classList.add("media-error"));
+      video.addEventListener("loadeddata", () => card.classList.remove("media-error"));
+      const playPreview = () => {
+        loadPreviewVideo(video);
+        video.play().catch(() => {});
+      };
+      const pausePreview = () => video.pause();
+      button.addEventListener("pointerenter", playPreview);
+      button.addEventListener("pointerleave", pausePreview);
+      button.addEventListener("focus", playPreview);
+      button.addEventListener("blur", pausePreview);
+      if (previewVideoObserver) {
+        previewVideoObserver.observe(video);
+      } else {
+        loadPreviewVideo(video);
+      }
+    } else {
+      video.remove();
+      image.src = meme.url;
+      image.alt = meme.name || meme.filename;
+    }
     title.textContent = caption;
-    meta.textContent = `${meme.filename} · ${formatBytes(meme.size)} · ${formatDate(meme.updatedAt)}`;
+    meta.textContent = `${mediaLabel(meme)} · ${meme.filename} · ${formatBytes(meme.size)} · ${formatDate(meme.updatedAt)}`;
+    storyTitle.textContent = meme.storyTitle || "DANH LƯU PHIÊU KÝ";
+    storyCopy.textContent = meme.story || "Duy đang bổ sung hồ sơ cho chương này.";
     lookIndex.textContent = `LOOK ${paddedIndex(index + 1, state.visible.length)}`;
-    button.setAttribute("aria-label", `Mở ${caption} trong Runway View`);
+    lookBadge.textContent = `${mediaLabel(meme)} · DUY`;
+    button.setAttribute("aria-label", `Mở ${meme.storyTitle || caption} trong Runway View`);
 
     button.addEventListener("pointermove", (event) => tiltCard(event, button));
     button.addEventListener("pointerleave", () => resetTilt(button));
@@ -309,9 +370,7 @@ function shuffleGallery() {
   state.visible = [...state.visible].sort(() => Math.random() - 0.5);
   state.activeIndex = 0;
   renderGallery();
-  state.campaignMemes = state.visible.length ? state.visible : state.memes;
-  state.heroIndex = 0;
-  showHero(0);
+  syncCampaign();
   restartHeroTimer();
 }
 
@@ -341,12 +400,33 @@ function renderPackCards() {
   state.visible.forEach((meme, index) => {
     const card = elements.packTemplate.content.firstElementChild.cloneNode(true);
     const image = card.querySelector("img");
+    const video = card.querySelector("video");
     card.dataset.index = String(index);
     card.setAttribute("aria-label", `Mở ${meme.name || meme.filename}`);
-    image.dataset.src = meme.url;
-    image.alt = meme.name || meme.filename;
-    card.addEventListener("click", () => {
+    if (isVideo(meme)) {
+      card.classList.add("is-video");
+      card.setAttribute("role", "group");
+      image.remove();
+      video.dataset.src = meme.url;
+      video.setAttribute("aria-label", meme.name || meme.filename);
+      video.loop = true;
+      video.muted = true;
+      video.addEventListener("error", () => card.classList.add("media-error"));
+      video.addEventListener("loadeddata", () => card.classList.remove("media-error"));
+    } else {
+      card.setAttribute("role", "button");
+      video.remove();
+      image.dataset.src = meme.url;
+      image.alt = meme.name || meme.filename;
+    }
+    card.addEventListener("click", (event) => {
       if (performance.now() < state.suppressClickUntil) return;
+      if (event.target.closest("video") && card.classList.contains("is-active")) return;
+      goToViewer(index);
+    });
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
       goToViewer(index);
     });
     cards.append(card);
@@ -356,7 +436,7 @@ function renderPackCards() {
     dot.type = "button";
     dot.dataset.index = String(index);
     dot.title = meme.name || meme.filename;
-    dot.setAttribute("aria-label", `Ảnh ${index + 1}: ${meme.name || meme.filename}`);
+    dot.setAttribute("aria-label", `${mediaLabel(meme)} ${index + 1}: ${meme.name || meme.filename}`);
     dot.addEventListener("click", () => goToViewer(index));
     dots.append(dot);
   });
@@ -376,6 +456,7 @@ function updatePackCard(card, offset) {
   const distance = Math.abs(offset);
   const direction = Math.sign(offset);
   const image = card.querySelector("img");
+  const video = card.querySelector("video");
   const isActive = distance === 0;
   const isNear = distance <= 2;
 
@@ -399,7 +480,17 @@ function updatePackCard(card, offset) {
   card.setAttribute("aria-hidden", isNear ? "false" : "true");
   card.tabIndex = isActive ? 0 : -1;
 
-  if (distance <= 3 && !image.src) image.src = image.dataset.src;
+  if (image && distance <= 3 && !image.src) image.src = image.dataset.src;
+  if (video) {
+    if (distance <= 2 && !video.src) video.src = video.dataset.src;
+    video.controls = isActive;
+    video.tabIndex = isActive ? 0 : -1;
+    if (isActive && video.src) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }
 }
 
 function updateViewer({ immediateBackdrop = false } = {}) {
@@ -424,34 +515,36 @@ function updateViewer({ immediateBackdrop = false } = {}) {
   });
 
   elements.viewerCounter.textContent = `${paddedIndex(state.activeIndex + 1, state.visible.length)} / ${paddedIndex(state.visible.length, state.visible.length)}`;
-  elements.viewerTitle.textContent = runwayCaptions[state.activeIndex % runwayCaptions.length];
-  elements.viewerMeta.textContent = `${meme.filename} · ${formatBytes(meme.size)} · ${formatDate(meme.updatedAt)}`;
+  elements.viewerTitle.textContent = meme.storyTitle || runwayCaptions[state.activeIndex % runwayCaptions.length];
+  elements.viewerStory.textContent = meme.story || "Duy đang bổ sung hồ sơ cho chương này.";
+  elements.viewerMeta.textContent = `${mediaLabel(meme)} · ${meme.filename} · ${formatBytes(meme.size)} · ${formatDate(meme.updatedAt)} · CỐT TRUYỆN: DUY`;
   elements.download.href = meme.url;
   elements.download.download = meme.filename;
-  setBackdrop(meme.url, immediateBackdrop);
+  setBackdrop(meme, immediateBackdrop);
   preloadViewerNeighbors();
 }
 
-function setBackdrop(url, immediate = false) {
+function setBackdrop(meme, immediate = false) {
   const requestId = ++state.backdropRequest;
   const nextIndex = immediate ? state.backdropIndex : (state.backdropIndex + 1) % elements.backdrops.length;
   const target = elements.backdrops[nextIndex];
-  const absoluteUrl = new URL(url, window.location.href).href;
-  const loader = new Image();
-  loader.src = absoluteUrl;
+  const absoluteUrl = new URL(meme.url, window.location.href).href;
 
   const reveal = () => {
     if (requestId !== state.backdropRequest) return;
-    target.style.backgroundImage = `url(${JSON.stringify(absoluteUrl)})`;
+    target.classList.toggle("is-video", isVideo(meme));
+    target.style.backgroundImage = isVideo(meme) ? "" : `url(${JSON.stringify(absoluteUrl)})`;
     elements.backdrops.forEach((layer, index) => layer.classList.toggle("is-active", index === nextIndex));
     state.backdropIndex = nextIndex;
   };
 
-  if (immediate) {
+  if (immediate || isVideo(meme)) {
     reveal();
     return;
   }
 
+  const loader = new Image();
+  loader.src = absoluteUrl;
   if (loader.decode) {
     loader.decode().then(reveal).catch(reveal);
   } else {
@@ -465,6 +558,7 @@ function preloadViewerNeighbors() {
   if (!total) return;
   for (const step of [-2, -1, 1, 2]) {
     const index = (state.activeIndex + step + total) % total;
+    if (isVideo(state.visible[index])) continue;
     const image = new Image();
     image.src = state.visible[index].url;
   }
@@ -506,7 +600,7 @@ function nextViewer(step) {
 }
 
 function startDrag(event) {
-  if (event.button !== 0 || !elements.viewer.open) return;
+  if (event.button !== 0 || !elements.viewer.open || event.target.closest("video, button, a")) return;
   state.drag.active = true;
   state.drag.pointerId = event.pointerId;
   state.drag.startX = event.clientX;
@@ -603,6 +697,7 @@ elements.packStage.addEventListener("pointercancel", finishDrag);
 elements.packStage.addEventListener("wheel", handleWheel, { passive: false });
 
 elements.viewer.addEventListener("close", () => {
+  elements.packCarousel.querySelectorAll("video").forEach((video) => video.pause());
   document.body.classList.remove("viewer-open");
   elements.viewer.classList.remove("is-revealing");
   elements.packStage.style.setProperty("--drag-x", "0px");
