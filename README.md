@@ -19,7 +19,7 @@ Website lookbook meme chạy local bằng Python, thiết kế như một campai
 2. Chạy file `app.py`.
 3. Mở `http://127.0.0.1:8000` trong trình duyệt.
 
-Ứng dụng không cần cài thêm thư viện Python.
+Ứng dụng không cần cài thêm thư viện Python(nếu là Pycharm).
 
 ## Thêm ảnh hoặc video
 
