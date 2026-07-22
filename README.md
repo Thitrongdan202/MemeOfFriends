@@ -13,9 +13,9 @@ Website lookbook meme chạy local bằng Python, thiết kế như một campai
 - Runway View 3D hỗ trợ nút điều hướng, phím mũi tên, con lăn, kéo chuột và vuốt điện thoại.
 - Responsive cho desktop và mobile.
 
-## Chạy bằng PyCharm
+## Chạy local
 
-1. Mở thư mục `meme-gallery` bằng PyCharm.
+1. Mở thư mục `meme-gallery` bằng PyCharm hoặc Visual Studio hoặc các phần mềm liên quan.
 2. Chạy file `app.py`.
 3. Mở `http://127.0.0.1:8000` trong trình duyệt.
 
